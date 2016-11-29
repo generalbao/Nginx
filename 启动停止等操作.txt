@@ -1,0 +1,48 @@
+2016年11月29日22:43:38
+
+service nginx -t -c /alidata/server/nginx/conf/nginx.conf
+当然执行命令前得换到您机器自己的nginx路径。如果打印如下结果，则证明本次修改配置是正确的，否则是错误的。
+
+当然，这只是说你的配置文件语法等没有错误，具体的业务您还得自行测试。
+
+想让该次配置生效，无需关闭ngnix服务，只需要重启服务即可，执行以下命令：
+
+service nginx -s  reload
+
+
+1. 运行nginx
+
+
+
+运行nginx。
+
+/etc/init.d/nginx
+
+可以运行该命令(前提是按照安装nginx文章中的做法，把运行的脚本复制到/etc/init.d目录下)
+
+2. 查询nginx进程
+
+ps -ef | grep nginx
+
+图中绿色框内的master就代表该进程是nginx的主进程
+
+
+3. 停止nginx
+
+停止Nginx：
+
+kill -QUIT 主进程号
+
+本例中就是 ： kill -QUIT 30536
+
+当然还有通用的停止进程的命令，那就是暴力停止了
+
+kill -9 进程号
+
+kill一个进程，在查询一下进程是否还存在，一个个的kill，全部kill完就ok了。
+
+一些问题
+
+启动nginx service nginx -s  reload 进程pid丢失   !!!!!!
+[error] invalid PID number "" in xxx
+/etc/ini.d/nginx -t -c /usr/local/nginx/conf/nginx.conf
