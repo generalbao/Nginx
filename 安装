@@ -1,0 +1,15 @@
+2017年1月5日14:39:06
+
+wget http://nginx.org/download/nginx-1.8.1.tar.gz
+
+tar -xvf nginx-1.8.1.tar.gz  
+ 
+    cd nginx-1.8.1/
+ 
+  ./configure --prefix=/usr/local/lnmp/nginx --add-module=/usr/local/src/nginx-rtmp-module(这个是做流推送的,可不加)
+  make && make install
+  
+  如果报错需要安装所需要的类库
+  yum install openssl openssl-devel 安全加密
+  yum install pcre pcre-devel   正则
+  yum install zlib zlib-dev    压缩
