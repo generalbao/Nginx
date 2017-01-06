@@ -1,0 +1,123 @@
+　2017年1月6日16:56:36
+  
+ nginx.conf
+   
+   http {
+    upstream myapp1 {
+        server srv1.example.com;
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://myapp1;
+        }
+    }
+}
+可以安装apache 然后搞几个虚拟域名测试 或者装两个centos虚拟机 
+
+!!!!!!!!!!
+内置负载策略  Nginx负载均衡是通过upstream模块来实现的，内置实现了三种负载策略
+
+111 轮循（默认） 
+Nginx根据请求次数，将每个请求均匀分配到每台服务器
+
+upstream myapp1 {
+        server srv1.example.com;
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+    
+222 最少连接 
+将请求分配给连接数最少的服务器。Nginx会统计哪些服务器的连接数最少。
+
+upstream myapp1 {
+        least_conn;
+        server srv1.example.com;
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+    
+333 IP Hash 
+绑定处理请求的服务器。第一次请求时，根据该客户端的IP算出一个HASH值，将请求分配到集群中的某一台服务器上。后面该客户端的所有请求，
+都将通过HASH算法，找到之前处理这台客户端请求的服务器，然后将请求交给它来处理。
+
+upstream myapp1 {
+         ip_hash;
+        server srv1.example.com;
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+    
+    
+4444 weight    默认为1，将请求平均分配给每台server
+
+upstream tomcats {
+    server 192.168.0.100:8080 weight=2;  # 2/6次
+    server 192.168.0.101:8080 weight=3;  # 3/6次
+    server 192.168.0.102:8080   # 1/6次
+}
+
+上例配置，表示6次请求中，100分配2次，101分配3次，102分配1次
+
+
+5555 max_fails 
+默认为1。某台Server允许请求失败的次数，超过最大次数后，在fail_timeout时间内，新的请求将不会分配给这台机器。如果设置为0，Nginx会将这台Server置
+为永久无效状态，然后将请求发给定义了proxy_next_upstream, fastcgi_next_upstream, uwsgi_next_upstream, scgi_next_upstream, and 
+memcached_next_upstream指令来处理这次错误的请求。
+fail_timeout 
+默认为10秒。某台Server达到max_fails次失败请求后，在fail_timeout期间内，nginx会认为这台Server暂时不可用，不会将请求分配给它
+
+upstream tomcats {
+    server 192.168.0.100:8080 weight=2 max_fails=3 fail_timeout=15;
+    server 192.168.0.101:8080 weight=3;
+    server 192.168.0.102:8080 weight=1;
+}
+
+192.168.0.100这台机器，如果有3次请求失败，nginx在15秒内，不会将新的请求分配给它。
+
+
+6666 backup 
+备份机，所有服务器挂了之后才会生效
+
+upstream tomcats {
+    server 192.168.0.100:8080 weight=2 max_fails=3 fail_timeout=15;
+    server 192.168.0.101:8080 weight=3;
+
+    server 192.168.0.102:8080 backup;
+}
+
+在100和101都挂了之前，102为不可用状态，不会将请求分配给它。只有当100和101都挂了，102才会被启用。
+
+7777 down 
+标识某一台server不可用。可能能通过某些参数动态的激活它吧，要不真没啥用。
+
+upstream tomcats {
+    server 192.168.0.100:8080 weight=2 max_fails=3 fail_timeout=15;
+
+    server 192.168.0.101:8080 down;   #标识某一台server不可用
+
+    server 192.168.0.102:8080 backup;
+}
+
+表示101这台Server为无效状态，不会将请求分配给它。
+
+888 max_conns 
+限制分配给某台Server处理的最大连接数量，超过这个数量，将不会分配新的连接给它。默认为0，表示不限制。注意：1.5.9之后的版本才有这个配置
+
+upstream tomcats {
+    server 192.168.0.100:8080 max_conns=1000;
+}
+
+表示最多给100这台Server分配1000个请求，如果这台Server正在处理1000个请求，nginx将不会分配新的请求给到它。假如有一个请求处理完了，
+还剩下999个请求在处理，这时nginx也会将新的请求分配给它
+    
+
+
+
+
+  
+  
