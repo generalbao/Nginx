@@ -1,0 +1,29 @@
+2017年2月13日17:48:54
+
+  这个地方是最重要的地方，因为默认情况下Nginx和PHP他俩之间是一点感觉没有的。在之前，很多朋友都搭建过Apache+PHP，Apache+PHP编译后生成的是模块文件，
+  而Nginx+PHP需要PHP生成可执行文件才可以，所以要利用fastcgi技术来实现N ginx与PHP的整合，这个只要我们安装是启用FastCGI即可。此次我们安装PHP不仅使用
+  了FastCGI，而且还使用了PHP-FPM这么一个东东，PHP-FPM说白了是一个管理FastCGI的一个管理器，它作为PHP的插件纯在，在安装PHP要想使用PHP-FPM时
+  就需要把PHP-FPM以补丁的形式安装到PHP中，  而且PHP要与PHP-FPM版本一致，这是必须的，切记！
+  
+  ./configure 在安装时必须启用--enable-fastcgi和 --enable-fpm  ！！！！！！！！！
+  
+  Nginx自己并不处理动态网页的请求，而且Nginx将得到的动态请求转交给PHP，下面我们打开Nginx的配置文件看一下
+#vi /usr/local/nginx/conf/nginx.conf 
+    修改一下
+ location / {
+            root   html;
+            index  index.html index.php index.htm;         //添加index.php
+        }
+
+
+location ~ \.php$ {
+            root           html;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  /usr/local/nginx/html$fastcgi_script_name;     //填写nginx 的html目录
+            include        fastcgi_params;
+            
+            }
+            
+            
+      而 apache则 PHP编译后生成的是模块文件  php7.so
