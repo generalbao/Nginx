@@ -1,0 +1,27 @@
+2017年2月13日18:23:33
+
+         location / {
+
+        #设置主机头和客户端真实地址，以便服务器获取客户端真实IP
+
+             proxy_set_header Host $host;
+
+             proxy_set_header X-Real-IP $remote_addr;
+
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+ 
+
+             #禁用缓存
+
+             proxy_buffering off;
+
+ 
+
+             #设置反向代理的地址
+
+             proxy_pass http://192.168.1.1;       
+
+      }
+
+代理地址根据实际情况修改。
